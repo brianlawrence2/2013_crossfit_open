@@ -1,11 +1,10 @@
-library(XML)
-library(RCurl)
-library(stringr)
 library(parallel)
-
-setwd("C:/Users/blawrence/Documents/cf/scraper")
+library(foreach)
+library(doParallel)
 
 getAthleteData<-function(links) {
+  require(RCurl)
+  require(XML)
   i<-1
   for (url in links$links) {
     #print(c(url,i))
@@ -74,23 +73,10 @@ getAthleteData<-function(links) {
   return(ath)
 }
 
-##################################################################################################
-# Function Name: getAthleteLinks
-# Date: 5/7/2013
-# Author: Brian Lawrence
-# Description: Function to scrape the leaderboard and return a data frame with links and ranks
-# Variables:
-#   @links - the URLs for each athlete on the leaderboard
-#   @ranks - the rank for each athlete on the leaderboard
-#   @url - url to scrape
-#   @lead - holds the getURL object
-#   @lead.tree - holds the parsed html
-#   @link - holds the links
-#   @rank - holds the ranks
-# Returns: a data frame of links and ranks
-##################################################################################################
 getAthleteLinks<-function(start,end,s) {
-  
+  require(stringr)
+  require(RCurl)
+  require(XML)
   # Initilazie the vectors
   links<-c()
   ranks<-c()
@@ -122,23 +108,13 @@ getAthleteLinks<-function(start,end,s) {
 }
 
 mcAth<-function(i) {
-  print(paste("Getting page ",i))
   ath.links<-getAthleteLinks(i,i,1)
   athmtemp<-getAthleteData(ath.links)
   return(athmtemp)
 }
 
-cores<-detectCores()
-athm<-mclapply(1:4, mcAth, mc.cores=cores)
+cl<-makeCluster(detectCores())
+registerDoParallel(cl)
+athm<-foreach(i=1:4, .combine="rbind") %dopar% mcAth(i)
 
-#for (i in 1:771) {
-#  print(paste("Getting page ",i))
-#  ath.links<-getAthleteLinks(i,i,1)
-#  if (!exists("athm")) {
-#    athm<-getAthleteData(ath.links)
-#  } else {
-#    athm<-rbind(athm, getAthleteData(ath.links))    
-#  }
-#}
-
-write.csv(athm,"C:/Users/blawrence/Documents/cf/scraper/data/athm.csv")
+write.csv(athm,"C:/Users/blawrence/Documents/2013_crossfit_open/scraper/data/athm.csv")
