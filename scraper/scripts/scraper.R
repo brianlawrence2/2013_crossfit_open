@@ -84,7 +84,7 @@ getAthleteLinks<-function(start,end,s) {
   # Loop through the table pages
   for (i in start:end) {
     # initialize and transform the url to be used by getURL
-    url<-"http://games.crossfit.com/scores/leaderboard.php?stage=5&sort=0&page=replace1&division=replace2&region=0&numberperpage=60&competition=0&frontpage=0&expanded=0&year=13&full=1&showtoggles=0&hidedropdowns=1&showathleteac=1&="
+      url<-"http://games.crossfit.com/scores/leaderboard.php?stage=5&sort=0&page=replace1&division=replace2&region=0&numberperpage=60&competition=0&frontpage=0&expanded=0&year=13&full=1&showtoggles=0&hidedropdowns=1&showathleteac=1&="
     url<-str_replace(url,"replace1",i)
     url<-str_replace(url,"replace2",s)
     
@@ -115,6 +115,6 @@ mcAth<-function(i) {
 
 cl<-makeCluster(detectCores())
 registerDoParallel(cl)
-athm<-foreach(i=1:4, .combine="rbind") %dopar% mcAth(i)
+athm<-foreach(i=1:771, .combine="rbind") %dopar% mcAth(i)
 
-write.csv(athm,"C:/Users/blawrence/Documents/2013_crossfit_open/scraper/data/athm.csv")
+write.csv(athm,"~/2013_crossfit_open/scraper/data/athm.csv")
